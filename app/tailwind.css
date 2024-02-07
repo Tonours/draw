@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-50;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+.icon-svg {
+  @apply w-6 h-6;
+}
+
+.whiteboard {
+  cursor: url('data:image/svg+xml;utf8,<svg width="12px" height="12px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none"><path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3z"/></svg>'), auto;
+}
