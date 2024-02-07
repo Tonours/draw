@@ -1,14 +1,11 @@
 import clsx from 'clsx';
-import { useCanvasDrawing } from '~/hooks/useCanvasDrawing';
 
 type WhiteBoardProps = {
   className?: string;
-  parentRef: React.RefObject<HTMLDivElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
 };
 
-export const WhiteBoard = ({ className, parentRef }: WhiteBoardProps) => {
-  const [canvasRef] = useCanvasDrawing(parentRef);
-
+export const WhiteBoard = ({ className, canvasRef }: WhiteBoardProps) => {
   return (
     <canvas
       ref={canvasRef}

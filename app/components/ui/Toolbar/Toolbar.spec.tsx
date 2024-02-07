@@ -15,3 +15,16 @@ describe('Toolbar', () => {
     expect(screen.getByTestId('toolbar')).toHaveClass(customClass);
   });
 });
+
+describe('ToolbarItem', () => {
+  it('renders children correctly', () => {
+    render(<Toolbar.Item>Hello World</Toolbar.Item>);
+    expect(screen.getByTestId('toolbar-item')).toBeInTheDocument();
+    expect(screen.getByTestId('toolbar-item')).toHaveTextContent('Hello World');
+  });
+
+  it('applies custom className', () => {
+    render(<Toolbar.Item className="custom-class">Content</Toolbar.Item>);
+    expect(screen.getByTestId('toolbar-item')).toHaveClass('custom-class');
+  });
+});

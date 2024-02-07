@@ -14,7 +14,7 @@ export const Toolbar = ({ className, children }: ToolbarProps) => {
     });
 
   const classNames = clsx(
-    'flex flex-col cursor-auto relative w-[120px] min-h-[200px] bg-white border-gray-100 border p-4 rounded-lg drop-shadow-sm transition-opacity duration-200 translate-x-4 translate-y-4 z-50',
+    'flex flex-col cursor-auto relative w-[120px] min-h-[200px] bg-white border-gray-100 border p-2 rounded-lg drop-shadow-sm transition-opacity duration-200 translate-x-4 translate-y-4 z-50',
     className,
     {
       'opacity-50': isDragging,
@@ -36,7 +36,7 @@ export const Toolbar = ({ className, children }: ToolbarProps) => {
         data-testid="toolbar"
         tabIndex={-1}
       >
-        {children}
+        <ul className="grid grid-cols-2 gap-2">{children}</ul>
 
         <button
           data-testid="toolbar-drag-handle"
@@ -55,3 +55,28 @@ export const Toolbar = ({ className, children }: ToolbarProps) => {
     </>
   );
 };
+
+export type ToolbarItemProps = {
+  children: React.ReactNode;
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
+};
+
+export const ToolbarItem = ({
+  children,
+  className,
+  onClick,
+}: ToolbarItemProps) => {
+  const classNames = clsx(
+    'w-full flex items-center justify-center p-2 bg-gray-100 text-gray-700 hover:text-gray-900 hover:bg-gray-200 rounded-sm duration-150',
+    className
+  );
+
+  return (
+    <button onClick={onClick} className={classNames} data-testid="toolbar-item">
+      {children}
+    </button>
+  );
+};
+
+Toolbar.Item = ToolbarItem;
