@@ -59,23 +59,41 @@ export const Toolbar = ({ className, children }: ToolbarProps) => {
 export type ToolbarItemProps = {
   children: React.ReactNode;
   className?: string;
+  selected?: boolean;
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
+  as?: 'button' | 'div';
 };
 
 export const ToolbarItem = ({
   children,
   className,
+  selected = false,
   onClick,
+  as = 'div',
 }: ToolbarItemProps) => {
   const classNames = clsx(
     'w-full flex items-center justify-center p-2 bg-gray-100 text-gray-700 hover:text-gray-900 hover:bg-gray-200 rounded-sm duration-150',
-    className
+    className,
+    { 'bg-gray-300': selected }
   );
 
+  const handleOnClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick(e);
+    }
+  };
+
+  const Component = as;
+
   return (
-    <button onClick={onClick} className={classNames} data-testid="toolbar-item">
+    <Component
+      onClick={handleOnClick}
+      className={classNames}
+      data-testid="toolbar-item"
+    >
       {children}
-    </button>
+    </Component>
   );
 };
 

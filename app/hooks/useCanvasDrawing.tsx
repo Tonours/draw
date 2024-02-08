@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 
 type Line = { x: number; y: number }[];
 
@@ -6,63 +6,65 @@ export const useCanvasDrawing = (
   parentRef?: React.RefObject<HTMLDivElement>
 ) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const isDrawingRef = useRef(false);
+  const isDrawingRef = useRef<boolean>(false);
+  const [lineWidth, setLineWidth] = useState<number>(6);
+  const [lineColor, setLineColor] = useState<string>('#000000');
   const linesRef = useRef<Line[]>([]);
 
-  const clearCanvas = () => {
-    linesRef.current = [];
-    redrawLines();
-  };
+  const updateDrawingProperties = useCallback(
+    (ctx: CanvasRenderingContext2D) => {
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = lineColor;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    },
+    [lineWidth, lineColor]
+  );
 
-  const drawLine = useCallback((line: Line) => {
+  const clearCanvas = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx || line.length < 2) {
-      return;
-    }
-
-    const [start, ...rest] = line;
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    rest.forEach((point) => {
-      ctx.lineTo(point.x, point.y);
-    });
-    ctx.stroke();
-  }, []);
-
-  const redrawLines = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) {
       return;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    linesRef.current.forEach(drawLine);
-  }, [drawLine]);
+    linesRef.current = [];
+  }, []);
 
-  // Gestion du redimensionnement avec debounce pour optimiser les performances
-  const resizeCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !parentRef?.current) return;
+  const drawLine = useCallback(
+    (line: Line) => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (!canvas || !ctx || line.length < 2) {
+        return;
+      }
 
-    canvas.width = parentRef.current.clientWidth;
-    canvas.height = parentRef.current.clientHeight;
-    redrawLines();
-  }, [redrawLines, parentRef]);
+      updateDrawingProperties(ctx);
+
+      ctx.beginPath();
+      line.forEach((point, index) => {
+        if (index === 0) {
+          ctx.moveTo(point.x, point.y);
+        } else {
+          ctx.lineTo(point.x, point.y);
+        }
+      });
+      ctx.stroke();
+    },
+    [updateDrawingProperties]
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
 
-    // Ajout des écouteurs d'événements
     const startDrawing = (e: MouseEvent) => {
       isDrawingRef.current = true;
       const rect = canvas.getBoundingClientRect();
@@ -72,7 +74,9 @@ export const useCanvasDrawing = (
     };
 
     const draw = (e: MouseEvent) => {
-      if (!isDrawingRef.current) return;
+      if (!isDrawingRef.current) {
+        return;
+      }
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -83,7 +87,6 @@ export const useCanvasDrawing = (
 
     const stopDrawing = () => {
       isDrawingRef.current = false;
-      redrawLines(); // Redessine pour s'assurer que tout est cohérent
     };
 
     canvas.addEventListener('mousedown', startDrawing);
@@ -91,18 +94,33 @@ export const useCanvasDrawing = (
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseleave', stopDrawing);
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas(); // Applique initialement la taille du canvas
-
-    // Nettoyage des écouteurs d'événements
     return () => {
       canvas.removeEventListener('mousedown', startDrawing);
       canvas.removeEventListener('mousemove', draw);
       canvas.removeEventListener('mouseup', stopDrawing);
       canvas.removeEventListener('mouseleave', stopDrawing);
-      window.removeEventListener('resize', resizeCanvas);
     };
-  }, [resizeCanvas, drawLine, redrawLines]);
+  }, [drawLine]);
 
-  return { canvasRef, clearCanvas };
+  useEffect(() => {
+    const resizeCanvas = () => {
+      const canvas = canvasRef.current;
+      const parent = parentRef?.current;
+      if (canvas && parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    };
+
+    resizeCanvas();
+  }, [parentRef]);
+
+  return {
+    canvasRef,
+    clearCanvas,
+    lineColor,
+    lineWidth,
+    setLineWidth,
+    setLineColor,
+  } as const;
 };
