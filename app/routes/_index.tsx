@@ -1,5 +1,5 @@
 import { ChangeEvent, useRef } from 'react';
-import { ClientRect, DndContext, Modifier } from '@dnd-kit/core';
+import { ClientRect, DndContext, Modifier, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 
 import MainLayout from '~/layouts/_main';
@@ -23,6 +23,24 @@ export default function Index() {
     setLineWidth,
     setLineColor,
   } = useCanvasDrawing(parentRef);
+
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  });
+
+  const sensors = useSensors(
+    mouseSensor,
+    touchSensor,
+  );
+
   const modifiers = [
     snapBottomToCursor,
     (e: Parameters<Modifier>[0]) =>
@@ -36,7 +54,7 @@ export default function Index() {
   return (
     <MainLayout>
       <div ref={parentRef} className="bg-gray-50 w-full h-full relative">
-        <DndContext modifiers={modifiers}>
+        <DndContext modifiers={modifiers} sensors={sensors}>
           <Toolbar>
             {TOOLBAR_LINE_WIDTH.map((width) => (
               <Toolbar.Item

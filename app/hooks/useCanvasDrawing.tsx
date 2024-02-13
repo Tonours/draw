@@ -11,6 +11,24 @@ export const useCanvasDrawing = (
   const [lineColor, setLineColor] = useState<string>('#000000');
   const linesRef = useRef<Line[]>([]);
 
+  const getCoords = useCallback((e: MouseEvent | TouchEvent) => {
+    let x = 0;
+    let y = 0;
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect) {
+      if (e instanceof TouchEvent) {
+        e.preventDefault();
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+      } else {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+      }
+    }
+    
+    return { x, y };
+  }, [])
+
   const updateDrawingProperties = useCallback(
     (ctx: CanvasRenderingContext2D) => {
       ctx.lineWidth = lineWidth;
@@ -65,21 +83,18 @@ export const useCanvasDrawing = (
       return;
     }
 
-    const startDrawing = (e: MouseEvent) => {
+    const startDrawing = (e: MouseEvent | TouchEvent) => {
       isDrawingRef.current = true;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const { x, y } = getCoords(e);
+
       linesRef.current.push([{ x, y }]);
     };
 
-    const draw = (e: MouseEvent) => {
+    const draw = (e: MouseEvent | TouchEvent) => {
       if (!isDrawingRef.current) {
         return;
       }
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const { x, y } = getCoords(e);
       const currentLine = linesRef.current[linesRef.current.length - 1];
       currentLine.push({ x, y });
       drawLine(currentLine);
@@ -91,6 +106,8 @@ export const useCanvasDrawing = (
 
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseleave', stopDrawing);
 
@@ -99,8 +116,10 @@ export const useCanvasDrawing = (
       canvas.removeEventListener('mousemove', draw);
       canvas.removeEventListener('mouseup', stopDrawing);
       canvas.removeEventListener('mouseleave', stopDrawing);
+      canvas.removeEventListener('touchstart', startDrawing);
+      canvas.removeEventListener('touchmove', draw);
     };
-  }, [drawLine]);
+  }, [drawLine, getCoords]);
 
   useEffect(() => {
     const resizeCanvas = () => {
