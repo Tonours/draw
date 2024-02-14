@@ -14,5 +14,11 @@ body {
 }
 
 .whiteboard {
-  cursor: url('data:image/svg+xml;utf8,<svg width="12px" height="12px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none"><path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3z"/></svg>'), auto;
+  cursor: url('data:image/svg+xml;utf8,<svg width="12px" height="12px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none"><path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3z"/></svg>') 6 6, auto;
 }
+
+.whiteboard.whiteboard--has-bigger-cursor {
+  cursor: url('data:image/svg+xml;utf8,<svg width="24px" height="24px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none"><path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3z"/></svg>') 12 12, auto;
+
+}
+

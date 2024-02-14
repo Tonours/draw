@@ -60,6 +60,7 @@ export type ToolbarItemProps = {
   children: React.ReactNode;
   className?: string;
   selected?: boolean;
+  title?: string;
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   as?: 'button' | 'div';
 };
@@ -68,6 +69,7 @@ export const ToolbarItem = ({
   children,
   className,
   selected = false,
+  title,
   onClick,
   as = 'div',
 }: ToolbarItemProps) => {
@@ -90,6 +92,7 @@ export const ToolbarItem = ({
     <Component
       onClick={handleOnClick}
       className={classNames}
+      title={title}
       data-testid="toolbar-item"
     >
       {children}
