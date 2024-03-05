@@ -16,13 +16,19 @@ export const useCanvasDrawing = (
     let y = 0;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
-      if (e instanceof TouchEvent) {
+      if (window.TouchEvent && e instanceof TouchEvent) {
         e.preventDefault();
         x = e.touches[0].clientX - rect.left;
         y = e.touches[0].clientY - rect.top;
-      } else {
+
+        return { x, y };
+      }
+      
+      if (e instanceof MouseEvent) {
         x = e.clientX - rect.left;
         y = e.clientY - rect.top;
+
+        return { x, y };
       }
     }
     
