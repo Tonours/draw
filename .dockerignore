@@ -1,0 +1,9 @@
+.git
+.github
+.cache
+.storybook
+node_modules
+build
+public/build
+.env
+.env.local
